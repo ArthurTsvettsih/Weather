@@ -1,13 +1,13 @@
 package com.develogical;
 
-import com.weather.Day;
 import com.weather.Forecast;
-import com.weather.Forecaster;
-import com.weather.Region;
+
+import java.util.LinkedList;
 
 public class WeatherCache implements WeatherInterface{
 	private final WeatherInterface weatherInterface;
-	private Forecast latestWeather;
+	private LinkedList<Pair<String, Forecast>> weathers;
+	private int MaxCacheSize;
 
 //	public static void main(String[] args) {
 //		// This is just an example of using the 3rd party API - delete this class before submission.
@@ -25,15 +25,27 @@ public class WeatherCache implements WeatherInterface{
 //	}
 
 
-	public WeatherCache(WeatherInterface weatherInterface) {
+	public WeatherCache(WeatherInterface weatherInterface, int cacheSize) {
 		this.weatherInterface = weatherInterface;
+		this.weathers = new LinkedList<>();
+		this.MaxCacheSize = cacheSize;
 	}
 
 	@Override
-	public Forecast getWeather() {
-		if(latestWeather == null) {
-			latestWeather = weatherInterface.getWeather();
+	public Forecast getWeather(String location) {
+
+		for (Pair weather : weathers)
+			if (weather.getL().equals(location))
+				return (Forecast) weather.getR();
+
+		Forecast weather = weatherInterface.getWeather(location);
+
+		weathers.addFirst(new Pair<>(location, weather));
+
+		if(weathers.size() > MaxCacheSize){
+			weathers.removeLast();
 		}
-		return latestWeather;
+
+		return weather;
 	}
 }
