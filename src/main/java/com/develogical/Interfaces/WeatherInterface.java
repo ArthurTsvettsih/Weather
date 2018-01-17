@@ -1,4 +1,4 @@
-package com.develogical;
+package com.develogical.Interfaces;
 
 import com.weather.Forecast;
 

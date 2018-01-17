@@ -1,19 +1,30 @@
 package com.develogical;
 
+import com.develogical.Interfaces.Clock;
+import com.develogical.Interfaces.WeatherInterface;
 import com.weather.Forecast;
+import org.junit.Before;
 import org.junit.Test;
-
-import java.sql.Time;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Mockito.*;
 
 public class WeatherCacheTests {
+	WeatherInterface mockWeatherInterface;
+	Clock mockClock;
+	WeatherCache weatherCache;
+
+	@Before
+	public void before()
+	{
+		mockWeatherInterface = mock(WeatherInterface.class);
+		mockClock = mock(Clock.class);
+		weatherCache = new WeatherCache(mockWeatherInterface, 1, 3600000, mockClock);
+	}
+
 	@Test
 	public void callingGetWeatherOnTheCacheCallesGetWeatherOnTheAdaptor() {
-		WeatherInterface mockWeatherInterface = mock(WeatherInterface.class);
-		WeatherCache weatherCache = new WeatherCache(mockWeatherInterface, 1);
 		Forecast expectedWeather = new Forecast("London", 10);
 		when(mockWeatherInterface.getWeather("London")).thenReturn(expectedWeather);
 
@@ -24,8 +35,6 @@ public class WeatherCacheTests {
 
 	@Test
 	public void shouldGoToProviderOnlyOnce() {
-		WeatherInterface mockWeatherInterface = mock(WeatherInterface.class);
-		WeatherCache weatherCache = new WeatherCache(mockWeatherInterface, 1);
 		Forecast expectedWeather = new Forecast("London", 10);
 		when(mockWeatherInterface.getWeather("London")).thenReturn(expectedWeather);
 
@@ -38,9 +47,7 @@ public class WeatherCacheTests {
 	}
 
 	@Test
-	public void weCanStoreAndRetrieve2Forecasts(){
-		WeatherInterface mockWeatherInterface = mock(WeatherInterface.class);
-		WeatherCache weatherCache = new WeatherCache(mockWeatherInterface, 1);
+	public void weCanStoreAndRetrieve2Forecasts() {
 		Forecast expectedWeather1 = new Forecast("London", 10);
 		Forecast expectedWeather2 = new Forecast("Berlin", 27);
 
@@ -55,38 +62,32 @@ public class WeatherCacheTests {
 	}
 
 	@Test
-	public void shouldNotAllowMoreCacheEntriesThanOne()
-	{
-		WeatherInterface mockWeatherInterface = mock(WeatherInterface.class);
-		WeatherCache weatherCache = new WeatherCache(mockWeatherInterface, 1);
+	public void shouldNotAllowMoreCacheEntriesThanOne() {
 		Forecast expectedWeather = new Forecast("London", 10);
 		when(mockWeatherInterface.getWeather("London")).thenReturn(expectedWeather);
 
 		Forecast actualWeather = weatherCache.getWeather("London");
 		Forecast actualWeather2 = weatherCache.getWeather("London");
 		Forecast actualWeather3 = weatherCache.getWeather("Berlin");
-		Forecast actualWeather4= weatherCache.getWeather("Berlin");
+		Forecast actualWeather4 = weatherCache.getWeather("Berlin");
 
 		assertThat(actualWeather, equalTo(expectedWeather));
 		verify(mockWeatherInterface, times(1)).getWeather("London");
 		verify(mockWeatherInterface, times(1)).getWeather("Berlin");
 	}
 
-//	@Test
-//	public void recordsGetDeletedFromTheCacheAfter1hour()
-//	{
-//		WeatherInterface mockWeatherInterface = mock(WeatherInterface.class);
-//		WeatherCache weatherCache = new WeatherCache(mockWeatherInterface, 1);
-//		Forecast expectedWeather = new Forecast("London", 10);
-//		when(mockWeatherInterface.getWeather("London")).thenReturn(expectedWeather);
-//
-//		Forecast actualWeather = weatherCache.getWeather("London");
-//
-//		weatherCache.removeExpired();
-//
-//		Forecast actualWeather2 = weatherCache.getWeather("London");
-//
-//		verify(mockWeatherInterface, times(2)).getWeather("London");
-//	}
+	@Test
+	public void recordsGetDeletedFromTheCacheAfter1hour() {
+		Forecast expectedWeather = new Forecast("London", 10);
+		when(mockWeatherInterface.getWeather("London")).thenReturn(expectedWeather);
+
+		when(mockClock.getTime()).thenReturn(new Long(0));
+		Forecast actualWeather = weatherCache.getWeather("London");
+
+		when(mockClock.getTime()).thenReturn(new Long(3600000+1));
+		Forecast actualWeather2 = weatherCache.getWeather("London");
+
+		verify(mockWeatherInterface, times(2)).getWeather("London");
+	}
 
 }
