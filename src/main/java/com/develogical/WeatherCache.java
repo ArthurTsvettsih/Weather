@@ -4,7 +4,7 @@ import com.weather.Forecast;
 
 import java.util.LinkedList;
 
-public class WeatherCache implements WeatherInterface{
+public class WeatherCache implements WeatherInterface {
 	private final WeatherInterface weatherInterface;
 	private LinkedList<Pair<String, Forecast>> weathers;
 	private int MaxCacheSize;
@@ -42,7 +42,7 @@ public class WeatherCache implements WeatherInterface{
 
 		weathers.addFirst(new Pair<>(location, weather));
 
-		if(weathers.size() > MaxCacheSize){
+		if (weathers.size() > MaxCacheSize) {
 			weathers.removeLast();
 		}
 

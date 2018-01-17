@@ -3,6 +3,8 @@ package com.develogical;
 import com.weather.Forecast;
 import org.junit.Test;
 
+import java.sql.Time;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Mockito.*;
@@ -70,5 +72,21 @@ public class WeatherCacheTests {
 		verify(mockWeatherInterface, times(1)).getWeather("Berlin");
 	}
 
+//	@Test
+//	public void recordsGetDeletedFromTheCacheAfter1hour()
+//	{
+//		WeatherInterface mockWeatherInterface = mock(WeatherInterface.class);
+//		WeatherCache weatherCache = new WeatherCache(mockWeatherInterface, 1);
+//		Forecast expectedWeather = new Forecast("London", 10);
+//		when(mockWeatherInterface.getWeather("London")).thenReturn(expectedWeather);
+//
+//		Forecast actualWeather = weatherCache.getWeather("London");
+//
+//		weatherCache.removeExpired();
+//
+//		Forecast actualWeather2 = weatherCache.getWeather("London");
+//
+//		verify(mockWeatherInterface, times(2)).getWeather("London");
+//	}
 
 }
